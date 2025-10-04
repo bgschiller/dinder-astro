@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TinderCard from "react-tinder-card";
 import type { getCollection } from "astro:content";
 
@@ -65,6 +65,41 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
     updateCurrentIndex(newIndex);
     await childRefs[newIndex].current.restoreCard();
   };
+
+  // Handle keyboard events
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle arrow keys when not typing in an input field
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowLeft":
+          event.preventDefault();
+          swipe("left");
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          swipe("right");
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          goBack();
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentIndex, canSwipe, canGoBack]); // Dependencies to ensure the latest state is used
 
   return (
     <div className="tinder-container">
