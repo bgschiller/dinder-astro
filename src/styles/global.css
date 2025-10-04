@@ -1,0 +1,302 @@
+/* Global styles for Dinder */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #fef3e2 0%, #fce7f3 100%);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header styles */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Tinder card styles */
+.tinder-container {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.tinder-card-stack {
+  position: relative;
+  height: 600px;
+}
+
+.tinder-card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image {
+  height: 12rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.meal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.recipe-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border: 2px solid #3b82f6;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.recipe-link:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.action-btn {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-dislike {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-dislike:hover {
+  background-color: #dc2626;
+}
+
+.btn-like {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-like:hover {
+  background-color: #059669;
+}
+
+.btn-back {
+  width: 3rem;
+  height: 3rem;
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-back:hover {
+  background-color: #4b5563;
+}
+
+.btn-back:disabled {
+  background-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Status text */
+.status-text {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Results section */
+.results-section {
+  margin-top: 2rem;
+}
+
+.results-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.results-liked h3 {
+  color: #059669;
+}
+
+.results-disliked h3 {
+  color: #dc2626;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.result-item {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.result-item-liked {
+  background-color: #f0fdf4;
+}
+
+.result-item-disliked {
+  background-color: #fef2f2;
+}
+
+.result-title {
+  font-weight: 500;
+}
+
+.result-title-liked {
+  color: #065f46;
+}
+
+.result-title-disliked {
+  color: #991b1b;
+}
+
+.result-description {
+  font-size: 0.875rem;
+}
+
+.result-description-liked {
+  color: #047857;
+}
+
+.result-description-disliked {
+  color: #b91c1c;
+}
+
+.result-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: inline-block;
+}
+
+.result-link:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .header p {
+    font-size: 1rem;
+  }
+  
+  .tinder-card-stack {
+    height: 500px;
+  }
+  
+  .card-image {
+    height: 10rem;
+    font-size: 3rem;
+  }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .action-buttons {
+    gap: 1.5rem;
+  }
+  
+  .action-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .btn-back {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}

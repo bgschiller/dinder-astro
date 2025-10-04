@@ -1,5 +1,10 @@
 ---
+import { getCollection } from 'astro:content';
+import MealTinder from '../components/MealTinder.tsx';
+import '../styles/global.css';
 
+const meals = await getCollection('meals');
+console.log(meals);
 ---
 
 <html lang="en">
@@ -8,9 +13,23 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Dinder - Meal Planning Made Fun</title>
+		<meta name="description" content="Swipe through delicious meal options to plan your weekly menu" />
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<div class="container">
+			<header class="header">
+				<h1>🍽️ Dinder</h1>
+				<p>Swipe right for meals you'd love to cook this week!</p>
+			</header>
+
+			<main>
+				<MealTinder meals={meals} client:load />
+			</main>
+
+			<footer class="footer">
+				<p>Built with ❤️ using Astro, React, and CSS</p>
+			</footer>
+		</div>
 	</body>
 </html>
