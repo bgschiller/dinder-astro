@@ -60,6 +60,13 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+}
+
+.tinder-card:active {
+  cursor: grabbing;
 }
 
 .card-image {
