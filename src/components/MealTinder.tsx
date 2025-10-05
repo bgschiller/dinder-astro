@@ -351,14 +351,27 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
                   <h2 className="card-title">{meal.data.name}</h2>
 
                   {meal.data.url && (
-                    <a
-                      href={meal.data.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="recipe-link pressable"
+                    <button
+                      className="recipe-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(
+                          meal.data.url,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                      }}
                     >
                       View Recipe →
-                    </a>
+                    </button>
                   )}
                 </div>
               </div>
