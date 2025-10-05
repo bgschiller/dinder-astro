@@ -342,6 +342,7 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
                     src={meal.data.image}
                     alt={meal.data.name}
                     className="meal-image"
+                    draggable={false}
                   />
                 </div>
 
@@ -354,7 +355,7 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
                       href={meal.data.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="recipe-link"
+                      className="recipe-link pressable"
                     >
                       View Recipe →
                     </a>
