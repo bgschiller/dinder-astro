@@ -89,12 +89,48 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: #f3f4f6;
 }
 
 .meal-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.meal-image.loading {
+  opacity: 0;
+}
+
+.meal-image.loaded {
+  opacity: 1;
+}
+
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .card-content {
@@ -441,6 +477,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: relative;
 }
 
 .liked-meal-item {
@@ -450,12 +487,64 @@ body {
   background-color: #f0fdf4;
   border-radius: 0.5rem;
   border: 1px solid #bbf7d0;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    opacity 0.2s ease;
+  cursor: move;
+  position: relative;
 }
 
-.liked-meal-item:hover {
+.liked-meals-list:not(.reordering) .liked-meal-item:hover {
   background-color: #dcfce7;
   border-color: #86efac;
+}
+
+.liked-meal-item.dragging {
+  opacity: 0.4;
+}
+
+.liked-meal-item.just-dropped {
+  background-color: #dcfce7;
+  border-color: #059669;
+  animation: highlightPulse 1.5s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: #a7f3d0;
+    border-color: #059669;
+    box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.3);
+  }
+  50% {
+    background-color: #d1fae5;
+    border-color: #059669;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+  }
+  100% {
+    background-color: #dcfce7;
+    border-color: #86efac;
+    box-shadow: none;
+  }
+}
+
+.liked-meal-item.drop-before::before,
+.liked-meal-item.drop-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #059669;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.5);
+  z-index: 10;
+}
+
+.liked-meal-item.drop-before::before {
+  top: -2px;
+}
+
+.liked-meal-item.drop-after::after {
+  bottom: -2px;
 }
 
 .liked-meal-number {
@@ -494,6 +583,50 @@ body {
 .liked-meal-link:hover {
   color: #2563eb;
   text-decoration: underline;
+}
+
+/* Drag handle */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  cursor: move;
+  user-select: none;
+  padding: 0 0.25rem;
+  transition: color 0.2s ease;
+  line-height: 1;
+  letter-spacing: -0.2em;
+}
+
+.drag-handle:hover {
+  color: #6b7280;
+}
+
+/* Remove meal button */
+.remove-meal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: all 0.2s ease;
+  border-radius: 0.25rem;
+  line-height: 1;
+}
+
+.remove-meal-btn:hover {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.remove-meal-btn:active {
+  transform: scale(0.95);
 }
 
 /* Undo clear notification */

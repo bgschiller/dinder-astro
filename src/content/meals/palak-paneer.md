@@ -1,6 +1,6 @@
 ---
 name: "Palak Paneer"
-image: "/images/meals/palak-paneer.jpg"
+image: "/images/meals/palak-paneer.png"
 ---
 
 ## Ingredients

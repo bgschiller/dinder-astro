@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import TinderCard from "react-tinder-card";
 import type { getCollection } from "astro:content";
 
@@ -6,6 +6,78 @@ type Meal = Awaited<ReturnType<typeof getCollection>>[number];
 interface MealTinderProps {
   meals: Meal[];
 }
+
+// Lazy-loaded image component with priority loading
+interface LazyImageProps {
+  src: string;
+  alt: string;
+  className: string;
+  priority?: boolean;
+  onLoad?: () => void;
+}
+
+const LazyImage: React.FC<LazyImageProps> = ({
+  src,
+  alt,
+  className,
+  priority = false,
+  onLoad,
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(priority);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (priority) {
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: "100px", // Start loading when card is 100px away from viewport
+        threshold: 0.1,
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [priority]);
+
+  const handleLoad = () => {
+    setIsLoaded(true);
+    onLoad?.();
+  };
+
+  return (
+    <div className="card-image" ref={imgRef}>
+      {!isLoaded && (
+        <div className="image-placeholder">
+          <div className="loading-spinner"></div>
+        </div>
+      )}
+      {isInView && (
+        <img
+          src={src}
+          alt={alt}
+          className={`meal-image ${isLoaded ? "loaded" : "loading"}`}
+          draggable={false}
+          onLoad={handleLoad}
+          loading={priority ? "eager" : "lazy"}
+        />
+      )}
+    </div>
+  );
+};
 
 // Helper function to shuffle array
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -27,9 +99,25 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [clearedMeals, setClearedMeals] = useState<Meal[] | null>(null);
   const [showUndoClear, setShowUndoClear] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dropPosition, setDropPosition] = useState<"before" | "after" | null>(
+    null
+  );
+  const [justDroppedIndex, setJustDroppedIndex] = useState<number | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   const currentIndexRef = React.useRef(currentIndex);
   const clearTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const likedMealRefs = React.useRef<React.RefObject<any>[]>([]);
+  const dropHighlightTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Update refs array when likedMeals changes
+  useEffect(() => {
+    likedMealRefs.current = likedMeals.map(
+      (_, i) => likedMealRefs.current[i] || React.createRef()
+    );
+  }, [likedMeals.length]);
 
   // Helper function to initialize a new deck
   const initializeNewDeck = React.useCallback(() => {
@@ -151,6 +239,17 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
     if (val < 0) {
       setShowEndCard(true);
     }
+
+    // Preload images for the next few cards when current index changes
+    if (val >= 0) {
+      const nextCards = shuffledMeals.slice(Math.max(0, val - 1), val + 3);
+      nextCards.forEach((meal) => {
+        if (meal?.data?.image) {
+          const img = new Image();
+          img.src = meal.data.image;
+        }
+      });
+    }
   };
 
   const canGoBack = currentIndex < shuffledMeals.length - 1;
@@ -254,6 +353,94 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
     }
   };
 
+  const handleRemoveLikedMeal = (index: number) => {
+    setLikedMeals((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (
+    e: React.DragEvent,
+    index: number,
+    element: HTMLElement
+  ) => {
+    e.preventDefault();
+
+    // Calculate if we're in the top or bottom half of the element
+    const rect = element.getBoundingClientRect();
+    const mouseY = e.clientY;
+    const elementMiddle = rect.top + rect.height / 2;
+    const position = mouseY < elementMiddle ? "before" : "after";
+
+    setDragOverIndex(index);
+    setDropPosition(position);
+  };
+
+  const handleDragEnd = () => {
+    if (
+      draggedIndex !== null &&
+      dragOverIndex !== null &&
+      draggedIndex !== dragOverIndex
+    ) {
+      // Disable hover effects during reorder
+      setIsReordering(true);
+
+      const newLikedMeals = [...likedMeals];
+      const draggedItem = newLikedMeals[draggedIndex];
+
+      // Remove the dragged item
+      newLikedMeals.splice(draggedIndex, 1);
+
+      // Calculate the correct insertion index
+      let insertIndex = dragOverIndex;
+
+      // If dragging from before the target to after it, adjust index
+      if (draggedIndex < dragOverIndex) {
+        insertIndex = dragOverIndex - 1;
+      }
+
+      // Adjust based on drop position
+      if (dropPosition === "after") {
+        insertIndex += 1;
+      }
+
+      newLikedMeals.splice(insertIndex, 0, draggedItem);
+      setLikedMeals(newLikedMeals);
+
+      // Highlight the dropped item briefly
+      setJustDroppedIndex(insertIndex);
+
+      // Clear any existing timeout
+      if (dropHighlightTimeoutRef.current) {
+        clearTimeout(dropHighlightTimeoutRef.current);
+      }
+
+      // Re-enable hover on next pointer movement
+      const handlePointerMove = () => {
+        setIsReordering(false);
+        document.removeEventListener("pointermove", handlePointerMove);
+      };
+      document.addEventListener("pointermove", handlePointerMove, {
+        once: true,
+      });
+
+      dropHighlightTimeoutRef.current = setTimeout(() => {
+        setJustDroppedIndex(null);
+        dropHighlightTimeoutRef.current = null;
+      }, 1500);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setDropPosition(null);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+    setDropPosition(null);
+  };
+
   // Handle keyboard events
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -292,11 +479,14 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
     };
   }, [currentIndex, canSwipe, canGoBack]); // Dependencies to ensure the latest state is used
 
-  // Cleanup timeout on unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (clearTimeoutRef.current) {
         clearTimeout(clearTimeoutRef.current);
+      }
+      if (dropHighlightTimeoutRef.current) {
+        clearTimeout(dropHighlightTimeoutRef.current);
       }
     };
   }, []);
@@ -326,6 +516,11 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
           // Only render cards that haven't been swiped yet
           if (index > currentIndex) return null;
 
+          // Determine if this card should have priority loading
+          // Priority for: current card, next 2 cards, and previous 1 card (if any)
+          const isPriority =
+            index >= currentIndex - 1 && index <= currentIndex + 2;
+
           return (
             <TinderCard
               ref={childRefs[index]}
@@ -336,15 +531,13 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
               preventSwipe={["up", "down"]}
             >
               <div className="tinder-card">
-                {/* Image */}
-                <div className="card-image">
-                  <img
-                    src={meal.data.image}
-                    alt={meal.data.name}
-                    className="meal-image"
-                    draggable={false}
-                  />
-                </div>
+                {/* Lazy-loaded Image */}
+                <LazyImage
+                  src={meal.data.image}
+                  alt={meal.data.name}
+                  className="meal-image"
+                  priority={isPriority}
+                />
 
                 {/* Content */}
                 <div className="card-content">
@@ -438,9 +631,34 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
               </button>
             </div>
           </div>
-          <div className="liked-meals-list">
+          <div
+            className={`liked-meals-list ${isReordering ? "reordering" : ""}`}
+          >
             {likedMeals.map((meal, idx) => (
-              <div key={idx} className="liked-meal-item">
+              <div
+                key={meal.id}
+                className={`liked-meal-item ${
+                  draggedIndex === idx ? "dragging" : ""
+                } ${
+                  dragOverIndex === idx && dropPosition === "before"
+                    ? "drop-before"
+                    : ""
+                } ${
+                  dragOverIndex === idx && dropPosition === "after"
+                    ? "drop-after"
+                    : ""
+                } ${justDroppedIndex === idx ? "just-dropped" : ""}`}
+                draggable={true}
+                onDragStart={() => handleDragStart(idx)}
+                onDragOver={(e) =>
+                  handleDragOver(e, idx, e.currentTarget as HTMLElement)
+                }
+                onDragEnd={handleDragEnd}
+                onDragLeave={handleDragLeave}
+              >
+                <div className="drag-handle" title="Drag to reorder">
+                  ⋮⋮
+                </div>
                 <div className="liked-meal-number">{idx + 1}</div>
                 <div className="liked-meal-details">
                   <div className="liked-meal-name">{meal.data.name}</div>
@@ -450,11 +668,19 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="liked-meal-link"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       View Recipe →
                     </a>
                   )}
                 </div>
+                <button
+                  onClick={() => handleRemoveLikedMeal(idx)}
+                  className="remove-meal-btn"
+                  title="Remove meal"
+                >
+                  ✖
+                </button>
               </div>
             ))}
           </div>
