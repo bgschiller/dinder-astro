@@ -394,14 +394,14 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
           className={`action-btn btn-back ${!canGoBack ? "disabled" : ""}`}
           disabled={!canGoBack}
         >
-          ↶
+          ↩
         </button>
         <button
           onClick={() => swipe("right")}
           className="action-btn btn-like"
           disabled={!canSwipe}
         >
-          ❤️
+          🤍️
         </button>
       </div>
 
