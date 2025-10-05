@@ -7,78 +7,6 @@ interface MealTinderProps {
   meals: Meal[];
 }
 
-// Lazy-loaded image component with priority loading
-interface LazyImageProps {
-  src: string;
-  alt: string;
-  className: string;
-  priority?: boolean;
-  onLoad?: () => void;
-}
-
-const LazyImage: React.FC<LazyImageProps> = ({
-  src,
-  alt,
-  className,
-  priority = false,
-  onLoad,
-}) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(priority);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    if (priority) {
-      setIsInView(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: "100px", // Start loading when card is 100px away from viewport
-        threshold: 0.1,
-      }
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [priority]);
-
-  const handleLoad = () => {
-    setIsLoaded(true);
-    onLoad?.();
-  };
-
-  return (
-    <div className="card-image" ref={imgRef}>
-      {!isLoaded && (
-        <div className="image-placeholder">
-          <div className="loading-spinner"></div>
-        </div>
-      )}
-      {isInView && (
-        <img
-          src={src}
-          alt={alt}
-          className={`meal-image ${isLoaded ? "loaded" : "loading"}`}
-          draggable={false}
-          onLoad={handleLoad}
-          loading={priority ? "eager" : "lazy"}
-        />
-      )}
-    </div>
-  );
-};
-
 // Helper function to shuffle array
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -238,17 +166,6 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
 
     if (val < 0) {
       setShowEndCard(true);
-    }
-
-    // Preload images for the next few cards when current index changes
-    if (val >= 0) {
-      const nextCards = shuffledMeals.slice(Math.max(0, val - 1), val + 3);
-      nextCards.forEach((meal) => {
-        if (meal?.data?.image) {
-          const img = new Image();
-          img.src = meal.data.image;
-        }
-      });
     }
   };
 
@@ -516,11 +433,8 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
           // Only render cards that haven't been swiped yet
           if (index > currentIndex) return null;
 
-          // Determine if this card should have priority loading
-          // Priority for: current card, next 2 cards, and previous 1 card (if any)
-          const isPriority =
-            index >= currentIndex - 1 && index <= currentIndex + 2;
-
+          const showNowOrSoon = index <= currentIndex + 2;
+          if (!showNowOrSoon) return null;
           return (
             <TinderCard
               ref={childRefs[index]}
@@ -531,13 +445,15 @@ const MealTinder: React.FC<MealTinderProps> = ({ meals }) => {
               preventSwipe={["up", "down"]}
             >
               <div className="tinder-card">
-                {/* Lazy-loaded Image */}
-                <LazyImage
-                  src={meal.data.image}
-                  alt={meal.data.name}
-                  className="meal-image"
-                  priority={isPriority}
-                />
+                <div className="card-image">
+                  <img
+                    src={meal.data.image}
+                    alt={meal.data.name}
+                    className="meal-image"
+                    draggable={false}
+                    loading="lazy"
+                  />
+                </div>
 
                 {/* Content */}
                 <div className="card-content">
