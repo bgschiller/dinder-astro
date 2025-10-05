@@ -5,8 +5,8 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -48,6 +48,7 @@ body {
 .tinder-card-stack {
   position: relative;
   height: 600px;
+  overflow: hidden;
 }
 
 .tinder-card {
@@ -58,8 +59,6 @@ body {
   border-radius: 1rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
@@ -70,9 +69,12 @@ body {
 }
 
 .card-image {
-  height: 12rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  position: relative;
 }
 
 .meal-image {
@@ -82,35 +84,49 @@ body {
 }
 
 .card-content {
-  padding: 1.5rem;
-  flex: 1;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   text-align: center;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  z-index: 1;
 }
 
 .card-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .recipe-link {
-  color: #3b82f6;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border: 2px solid #3b82f6;
+  border: 2px solid #ffffff;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
 }
 
 .recipe-link:hover {
-  background-color: #3b82f6;
-  color: white;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 /* Action buttons */
@@ -274,34 +290,29 @@ body {
   .header h1 {
     font-size: 2rem;
   }
-  
+
   .header p {
     font-size: 1rem;
   }
-  
+
   .tinder-card-stack {
     height: 500px;
   }
-  
-  .card-image {
-    height: 10rem;
-    font-size: 3rem;
-  }
-  
+
   .card-content {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
   }
-  
+
   .action-buttons {
     gap: 1.5rem;
   }
-  
+
   .action-btn {
     width: 3.5rem;
     height: 3.5rem;
     font-size: 1.25rem;
   }
-  
+
   .btn-back {
     width: 2.5rem;
     height: 2.5rem;
