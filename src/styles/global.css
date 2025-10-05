@@ -63,6 +63,9 @@ body {
   position: relative;
   height: 600px;
   overflow: hidden;
+  /* Enable hardware acceleration for the stack container */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .tinder-card {
@@ -76,6 +79,12 @@ body {
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
+  /* Hardware acceleration for smoother dragging */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 }
 
 .tinder-card:active {
@@ -90,6 +99,9 @@ body {
   height: 100%;
   overflow: hidden;
   background-color: #f3f4f6;
+  /* Promote to own layer for better performance */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .meal-image {
@@ -97,6 +109,13 @@ body {
   height: 100%;
   object-fit: cover;
   transition: opacity 0.3s ease;
+  /* Prevent tearing and improve rendering performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .meal-image.loading {
@@ -129,8 +148,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .card-content {
@@ -151,6 +174,9 @@ body {
     rgba(0, 0, 0, 0) 100%
   );
   z-index: 1;
+  /* Prevent overlay from causing repaint issues */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .card-title {
