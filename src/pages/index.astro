@@ -9,7 +9,7 @@ const meals = await getCollection('meals');
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href="/dinder.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Dinder - Meal Planning Made Fun</title>
@@ -18,8 +18,11 @@ const meals = await getCollection('meals');
 	<body>
 		<div class="container">
 			<header class="header">
-				<h1>🍽️ Dinder</h1>
-				<p>Swipe right for meals you'd love to cook this week!</p>
+				<div class="logo-container">
+					<img src="/dinder.svg" alt="Dinder Logo" class="logo" />
+					<h1>Dinder</h1>
+				</div>
+				<p>Swipe right for meals you'd like to eat this week!</p>
 			</header>
 
 			<main>
@@ -27,7 +30,7 @@ const meals = await getCollection('meals');
 			</main>
 
 			<footer class="footer">
-				<p>Built with ❤️ using Astro, React, and CSS</p>
+				<p>Want your own? Visit <a href="https://github.com/bgschiller/dinder-astro">the GitHub repo to remix</a></p>
 			</footer>
 		</div>
 	</body>

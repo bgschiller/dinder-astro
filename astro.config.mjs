@@ -7,6 +7,6 @@ export default defineConfig({
   integrations: [react()],
   server: {
     host: true,
-    allowedHosts: ["parallel-noticed-shareware-catch.trycloudflare.com"],
+    allowedHosts: ["oasis-completely-virtually-fig.trycloudflare.com"],
   },
 });
